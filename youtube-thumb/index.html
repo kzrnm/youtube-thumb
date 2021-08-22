@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <style>
+        .fix-color-blue,
+        .fix-color-blue:visited,
+        .fix-color-blue:hover,
+        .fix-color-blue:active {
+            color: #00009F;
+        }
+
+        .row {
+            margin: 1em 5em;
+        }
+
+        .thumb-url {
+            min-width: 480px;
+        }
+
+        .orig-url {
+            width: 720px;
+            font-size: x-large;
+        }
+
+        img {
+            max-width: 720px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>YouTubeサムネイル取得</h1>
+    <div id="app">
+        <div class="row">
+            <h2>取得する動画</h2>
+            <label>YouTube URL or ID:<input class="orig-url" v-model="url" placeholder="https://youtu.be/jNQXAC9IVRw"
+                    v-on:click="$event.target.select()"></label>
+            <div>このページを開く際に<a class="fix-color-blue" href="?url=jNQXAC9IVRw">?url=jNQXAC9IVRw</a>のようにして開くと、入力済みの状態となる</div>
+        </div>
+        <div class="row" v-if="parsedUrl">
+            <div v-for="thumb in thumbnails">
+                <div><label><input class="thumb-url" v-bind:value="thumb" v-on:click="$event.target.select()"
+                            readonly></label></div>
+                <div><img v-bind:src="thumb" readonly></div>
+            </div>
+        </div>
+        <div class="row" v-else>
+            動画がありません
+        </div>
+    </div>
+    <script>
+        const sp = new URLSearchParams(location.search);
+        let paramUrl = sp.get("url");
+        if (!paramUrl) paramUrl = sp.get("u");
+        if (!paramUrl) paramUrl = '';
+
+        const app = new Vue({
+            el: '#app',
+            data: {
+                url: paramUrl,
+            },
+            computed: {
+                thumbnails: function () {
+                    if (this.parsedUrl) return [
+                        `https://img.youtube.com/vi/${this.parsedUrl}/maxresdefault.jpg`,
+                        `https://img.youtube.com/vi/${this.parsedUrl}/sddefault.jpg`,
+                        `https://img.youtube.com/vi/${this.parsedUrl}/hqdefault.jpg`,
+                        `https://img.youtube.com/vi/${this.parsedUrl}/mqdefault.jpg`,
+                        `https://img.youtube.com/vi/${this.parsedUrl}/default.jpg`,
+                    ];
+                    return [];
+                },
+                parsedUrl: function () {
+                    const url = this.url;
+                    try {
+                        const parse = new URL(url);
+                        if (parse.host === 'www.youtube.com' && parse.pathname === '/watch') {
+                            return parse.searchParams.get('v');
+                        } else if (parse.host === 'youtu.be') {
+                            return parse.pathname.substr(1);
+                        }
+                        return '';
+                    } catch (e) { }
+                    return url;
+                }
+            }
+        })
+    </script>
+</body>
+
+</html>
