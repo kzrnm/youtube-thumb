@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <script src="https://cdn.jsdelivr.net/npm/vue"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2"></script>
     <style>
         .fix-color-blue,
         .fix-color-blue:visited,
@@ -38,7 +38,8 @@
             <h2>取得する動画</h2>
             <label>YouTube URL or ID:<input class="orig-url" v-model="url" placeholder="https://youtu.be/jNQXAC9IVRw"
                     v-on:click="$event.target.select()"></label>
-            <div>このページを開く際に<a class="fix-color-blue" href="?url=jNQXAC9IVRw">?url=jNQXAC9IVRw</a>のようにして開くと、入力済みの状態となる</div>
+            <div>このページを開く際に <a class="fix-color-blue" v-bind:href="currentLocation">{{ currentLocation }}</a>
+                のようにして開くと、入力済みの状態となる</div>
         </div>
         <div class="row" v-if="parsedUrl">
             <div v-for="thumb in thumbnails">
@@ -57,9 +58,13 @@
         if (!paramUrl) paramUrl = sp.get("u");
         if (!paramUrl) paramUrl = '';
 
+        const currentLocation = new URL(location.href)
+        currentLocation.searchParams.set("url", 'jNQXAC9IVRw')
+
         const app = new Vue({
             el: '#app',
             data: {
+                currentLocation: currentLocation,
                 url: paramUrl,
             },
             computed: {
