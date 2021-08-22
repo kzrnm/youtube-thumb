@@ -1,0 +1,22 @@
+name: Release
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  doc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Generate publish files
+        run: |
+          mkdir public
+          mv youtube-thumb.html public/index.html
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
+          destination_dir: youtube-thumb
